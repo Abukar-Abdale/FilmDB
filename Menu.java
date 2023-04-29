@@ -26,15 +26,11 @@ public class Menu {
         boolean quit = false;
         while (!quit) {
             System.out.println("\nPlease select an option:");
-            System.out.println("1. Show all movies ");
-            System.out.println("2. Show all actors");
-            System.out.println("3. Show all directors");
-            System.out.println("4. Show all genres");
-            System.out.println("5. Show all years");
-            System.out.println("6. Search for a movie by title ");
-            System.out.println("7. Show information");
-            System.out.println("8. Add a movie");
-            System.out.println("9. Quit");
+
+            System.out.println("1. Search for a movie");
+            System.out.println("2. Add a movie");
+            System.out.println("3. Show all movies ");
+            System.out.println("4. Quit");
 
             int choice = 0;
             try {
@@ -48,34 +44,21 @@ public class Menu {
 
             switch (choice) {
                 case 1:
-                    showAllMovies();
+                    search();
                   break;
+
                  case 2:
-                    showAllActors();
+                     addMovie();
                     break;
                 case 3:
-                    showAllDirectors();
+                    showAllMovies();
                     break;
                 case 4:
-                    showAllGenres();
-                    break;
-                case 5:
-                    showAllYears();
-                    break;
-                case 6:
-                    search();
-                    break;
-                case 7:
-                    showInformation();
-                    break;
                 case 8:
-                    addMovie();
-                    break;
-                case 9:
                     quit = true;
                     break;
                 default:
-                    System.out.println("Invalid input. Please enter a number between 1 and 9.");
+                    System.out.println("Invalid input. Please enter a number between 1 and 8.");
                     break;
             }
         }
@@ -85,165 +68,23 @@ public class Menu {
     public void showAllMovies() {
         try {
             // Retrieve all movies from the database
-            Movie[] movies = database.getMovie("", "");
+            Movie[] movies = database.getMovie("");
 
             // Display the movies to the user
             if (movies.length == 0) {
                 System.out.println("No movies found");
+                System.out.println("Please add a movie first or search for a movie.");
             } else {
-                System.out.println("All movies:");
+                System.out.println("All movies:\n");
                 for (Movie movie : movies) {
                     System.out.println(movie.getTitle() + " (" + movie.getYear() + ")");
+                    System.out.println("Genre: " + movie.getGenre());
+                    System.out.println("Actors: " + movie.getActors());
+                    System.out.println("Director: " + movie.getDirector());
+                    System.out.println("Type: " + movie.getType());
+                    System.out.println("Plot: " + movie.getPlot() + "\n");
                 }
             }
-        } catch (SQLException e) {
-            System.out.println("Error retrieving movies: " + e.getMessage());
-        }
-    }
-
-
-    public void showAllActors() {
-        try {
-            // Retrieve all movies from the database
-            Movie[] movies = database.getMovie("", "");
-
-            // Create a map to store actors and their corresponding movies
-            Map<String, List<Movie>> actorsMap = new HashMap<>();
-
-            // Loop through all movies and add each actor to the map along with their corresponding movie
-            for (Movie movie : movies) {
-                String[] actors = new String[]{movie.getActors()};
-                for (String actor : actors) {
-                    if (actorsMap.containsKey(actor)) {
-                        actorsMap.get(actor).add(movie);
-                    } else {
-                        List<Movie> actorMovies = new ArrayList<>();
-                        actorMovies.add(movie);
-                        actorsMap.put(actor, actorMovies);
-                    }
-                }
-            }
-
-            // Display the actors and their corresponding movies
-            for (Map.Entry<String, List<Movie>> entry : actorsMap.entrySet()) {
-                System.out.println(entry.getKey() + ":");
-                List<Movie> actorMovies = entry.getValue();
-                for (Movie movie : actorMovies) {
-                    System.out.println("\t" + movie.getTitle() + " (" + movie.getYear() + ")");
-                }
-            }
-
-        } catch (SQLException e) {
-            System.out.println("Error retrieving movies: " + e.getMessage());
-        }
-    }
-
-
-
-    public void showAllDirectors() {
-        try {
-            // Retrieve all movies from the database
-            Movie[] movies = database.getMovie("", "");
-
-            // Create a map to store directors and their corresponding movies
-            Map<String, List<Movie>> directorsMap = new HashMap<>();
-
-            // Loop through all movies and add each director to the map along with their corresponding movie
-            for (Movie movie : movies) {
-                String director = movie.getDirector();
-                if (directorsMap.containsKey(director)) {
-                    directorsMap.get(director).add(movie);
-                } else {
-                    List<Movie> directorMovies = new ArrayList<>();
-                    directorMovies.add(movie);
-                    directorsMap.put(director, directorMovies);
-                }
-            }
-
-            // Display the directors and their corresponding movies
-            for (Map.Entry<String, List<Movie>> entry : directorsMap.entrySet()) {
-                System.out.println(entry.getKey() + ":");
-                List<Movie> directorMovies = entry.getValue();
-                for (Movie movie : directorMovies) {
-                    System.out.println("\t" + movie.getTitle() + " (" + movie.getYear() + ")");
-                }
-            }
-
-        } catch (SQLException e) {
-            System.out.println("Error retrieving movies: " + e.getMessage());
-        }
-    }
-
-
-
-
-
-    public void showAllGenres() {
-        try {
-            // Retrieve all movies from the database
-            Movie[] movies = database.getMovie("", "");
-
-            // Create a map to store genres and their corresponding movies
-            Map<String, List<Movie>> genresMap = new HashMap<>();
-
-            // Loop through all movies and add each genre to the map along with its corresponding movie
-            for (Movie movie : movies) {
-                String[] genres = movie.getGenre().split(",");
-                for (String genre : genres) {
-                    if (genresMap.containsKey(genre)) {
-                        genresMap.get(genre).add(movie);
-                    } else {
-                        List<Movie> genreMovies = new ArrayList<>();
-                        genreMovies.add(movie);
-                        genresMap.put(genre, genreMovies);
-                    }
-                }
-            }
-
-            // Display the genres and their corresponding movies
-            for (Map.Entry<String, List<Movie>> entry : genresMap.entrySet()) {
-                System.out.println(entry.getKey() + ":");
-                List<Movie> genreMovies = entry.getValue();
-                for (Movie movie : genreMovies) {
-                    System.out.println("\t" + movie.getTitle() + " (" + movie.getYear() + ")");
-                }
-            }
-
-        } catch (SQLException e) {
-            System.out.println("Error retrieving movies: " + e.getMessage());
-        }
-    }
-
-
-    public void showAllYears() {
-        try {
-            // Retrieve all movies from the database
-            Movie[] movies = database.getMovie("", "");
-
-            // Create a map to store years and their corresponding movies
-            Map<String, List<Movie>> yearsMap = new HashMap<>();
-
-            // Loop through all movies and add each year to the map along with its corresponding movie
-            for (Movie movie : movies) {
-                String year = movie.getYear();
-                if (yearsMap.containsKey(year)) {
-                    yearsMap.get(year).add(movie);
-                } else {
-                    List<Movie> yearMovies = new ArrayList<>();
-                    yearMovies.add(movie);
-                    yearsMap.put(year, yearMovies);
-                }
-            }
-
-            // Display the years and their corresponding movies
-            for (Map.Entry<String, List<Movie>> entry : yearsMap.entrySet()) {
-                System.out.println(entry.getKey() + ":");
-                List<Movie> yearMovies = entry.getValue();
-                for (Movie movie : yearMovies) {
-                    System.out.println("\t" + movie.getTitle() + " (" + movie.getYear() + ")");
-                }
-            }
-
         } catch (SQLException e) {
             System.out.println("Error retrieving movies: " + e.getMessage());
         }
@@ -306,7 +147,7 @@ public class Menu {
             case 1:
                 searchMovies();
                break;
-          /* case 2:
+           case 2:
                 searchActors();
                 break;
            case 3:
@@ -317,7 +158,7 @@ public class Menu {
                 break;
             case 5:
                 searchYears();
-                break;  */
+                break;
             case 6:
                 break;
             default:
@@ -342,7 +183,11 @@ public class Menu {
                 System.out.println("Results from OMDB API:");
                 displayResult(apiMovies);
                 for (Movie movie : apiMovies) {
-                    database.addMovie(movie); // add each movie to database
+                    System.out.println("Do you want to add this movie to the database? (Y/N)");
+                    String answer = scanner.nextLine();
+                    if (answer.equalsIgnoreCase("Y")) {
+                        database.addMovie(movie); // add movie to database
+                    }
                 }
             }
         } else {
@@ -351,6 +196,7 @@ public class Menu {
             displayResult(movies);
         }
     }
+
 
 
 
@@ -388,31 +234,115 @@ public class Menu {
 
 
 
-   /* private void searchActors() throws SQLException{
+    private void searchActors() throws SQLException{
+        Scanner scanner = new Scanner(System.in);
 
-        // search for actors from local database
+        System.out.print("Enter actor name: ");
+        String actor = scanner.nextLine().trim();
+
+        try {
+            // Retrieve all movies that feature the given actor
+            Movie[] movies = database.getActor( actor);
+
+            // Display the movies to the user
+            if (movies.length == 0) {
+                System.out.println(actor + " has not acted in any movies");
+            } else {
+                System.out.println("Movies featuring " + actor + ":");
+                for (Movie movie : movies) {
+                    System.out.println(movie.getTitle() + " (" + movie.getYear() + ")");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error retrieving movies: " + e.getMessage());
+        }
+
+
 
 
 
     }
 
     private void searchDirectors(){
-     // eve
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter director name: ");
+        String director = scanner.nextLine().trim();
+
+        try {
+            // Retrieve all movies directed by the given director
+            Movie[] movies = database.getDirector(director);
+
+            // Display the movies to the user
+            if (movies.length == 0) {
+                System.out.println(director + " has not directed any movies");
+            } else {
+                System.out.println("Movies directed by " + director + ":");
+                for (Movie movie : movies) {
+                    System.out.println(movie.getTitle() + " (" + movie.getYear() + ")");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error retrieving movies: " + e.getMessage());
+        }
+
 
 
     }
 
     private void searchGenres(){
-     // only from local database
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter genre: ");
+        String genre = scanner.nextLine().trim();
+
+        try {
+            // Retrieve all movies that feature the given genre
+            Movie[] movies = database.getGenre(genre);
+
+            // Display the movies to the user
+            if (movies.length == 0) {
+                System.out.println("No movies found in the " + genre + " genre");
+            } else {
+                System.out.println("Movies in the " + genre + " genre:");
+                for (Movie movie : movies) {
+                    System.out.println(movie.getTitle() + " (" + movie.getYear() + ")");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error retrieving movies: " + e.getMessage());
+        }
+
 
     }
 
     private void searchYears(){
-     // only from local database
+        Scanner scanner = new Scanner(System.in);
 
-    }   */
+        System.out.print("Enter year: ");
+        String year = scanner.nextLine().trim();
+
+        try {
+            // Retrieve all movies that were released in the given year
+            Movie[] movies = database.getYear(year);
+
+            // Display the movies to the user
+            if (movies.length == 0) {
+                System.out.println("No movies found in " + year);
+            } else {
+                System.out.println("Movies released in " + year + ":");
+                for (Movie movie : movies) {
+                    System.out.println(movie.getTitle() + " (" + movie.getYear() + ")");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error retrieving movies: " + e.getMessage());
 
 
+    }
+
+
+}
 }
 
 

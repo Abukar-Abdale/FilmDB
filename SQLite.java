@@ -100,7 +100,7 @@ public class SQLite {
     }
 
 
-/*
+
     public Movie[] getMovie(String title, String year, String type) throws SQLException {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM movies WHERE title = ? AND year = ? AND type = ?");
@@ -118,7 +118,7 @@ public class SQLite {
             System.out.println(e.getMessage());
             return new Movie[0];
         }
-    }  */
+    }
 
     public Movie[] getActor(String actor) throws SQLException {
         try {
@@ -136,6 +136,7 @@ public class SQLite {
             return new Movie[0];
         }
     }
+
 
 
     public Movie[] getDirector(String director) throws SQLException {
@@ -221,9 +222,6 @@ public class SQLite {
         }
     }
 
-    public List<Movie> getAllMovies() {
-            return null;
-    }
 }
 
 
