@@ -4,21 +4,23 @@ import java.sql.SQLException;
 import java.util.*;
 
 
+// Modify Menu class to use the factory
 public class Menu {
     private Scanner scanner;
     private SQLite database;
     private OMDBApi omdbAPI;
 
     private KeyReader keyReader = new KeyReader();
+    private MovieDatabaseFactory factory = new DefaultMovieDatabaseFactory();
 
     public Menu() throws ClassNotFoundException, SQLException, IOException {
-        scanner = new Scanner(System.in);
-        database = new SQLite( "film.db");
-        database.createMoviesTable();
+        scanner = factory.createScanner();
+        database = factory.createSQLite("film.db");
         String apiKey = keyReader.getApiKey();
-        omdbAPI = new OMDBApi(apiKey);
-
+        omdbAPI = factory.createOMDBApi(apiKey);
     }
+
+
 
 
     public void run() throws SQLException {
@@ -27,9 +29,10 @@ public class Menu {
         while (!quit) {
             System.out.println("\nPlease select an option:");
 
-            System.out.println("1. Search for a movie");
-            System.out.println("2. Add a movie");
-            System.out.println("3. Show all movies ");
+            System.out.println("1. Search");
+            System.out.println("2. Show all movies ");
+            System.out.println("3. Add a movie");
+            System.out.println("4. Delete a movie");
             System.out.println("4. Quit");
 
             int choice = 0;
@@ -46,15 +49,17 @@ public class Menu {
                 case 1:
                     search();
                   break;
-
-                 case 2:
-                     addMovie();
-                    break;
-                case 3:
+                case 2:
                     showAllMovies();
                     break;
+                 case 3:
+                     addMovie();
+                    break;
+
                 case 4:
-                case 8:
+                    deleteMovie();
+                    break;
+                case 5:
                     quit = true;
                     break;
                 default:
@@ -89,6 +94,7 @@ public class Menu {
             System.out.println("Error retrieving movies: " + e.getMessage());
         }
     }
+
 
 
     private void addMovie() throws SQLException {
@@ -129,6 +135,26 @@ public class Menu {
         }
     }
 
+    private void deleteMovie() throws SQLException {
+        System.out.println("\nEnter movie title:");
+        String title = scanner.nextLine();
+        Movie[] movies = database.getMovie(title);
+        if (movies.length == 0) {
+            System.out.println("Movie not found in database.");
+        } else {
+            Movie movie = movies[0];
+            System.out.println(movie.toString());
+            System.out.println("Do you want to delete this movie from the database? (y/n)");
+            String answer = scanner.nextLine();
+            if (answer.equals("y")) {
+                database.deleteMovie(movie);
+                System.out.println("Movie deleted from database");
+            } else {
+                System.out.println("Movie not deleted");
+            }
+        }
+    }
+
 
 
     private void search() throws SQLException {
@@ -141,7 +167,7 @@ public class Menu {
         System.out.println("6. Back");
 
         int choice = scanner.nextInt();
-        scanner.nextLine(); // consume newline character
+        scanner.nextLine();
 
         switch (choice) {
             case 1:
@@ -164,7 +190,6 @@ public class Menu {
             default:
                 System.out.println("Invalid input");
         }
-
 
     }
 
@@ -196,8 +221,6 @@ public class Menu {
             displayResult(movies);
         }
     }
-
-
 
 
     private void displayResult(Movie[] movies) {
@@ -256,10 +279,6 @@ public class Menu {
         } catch (SQLException e) {
             System.out.println("Error retrieving movies: " + e.getMessage());
         }
-
-
-
-
 
     }
 

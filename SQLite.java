@@ -8,17 +8,13 @@ public class SQLite {
 
     private Connection connection;
 
-    public SQLite(String database) throws SQLException {
-        try {
-            connection = DriverManager.getConnection("jdbc:sqlite:" + database);
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
+    public SQLite(String database) throws SQLException, ClassNotFoundException {
+        Class.forName("org.sqlite.JDBC"); // Load the JDBC driver for SQLite
+        connection = DriverManager.getConnection("jdbc:sqlite:" + database);
     }
 
     public void createMoviesTable() throws SQLException {
-        try {
-            Statement statement = connection.createStatement();
+        try (Statement statement = connection.createStatement()) {
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS movies ( id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, released TEXT, year TEXT, imdbID TEXT, type TEXT, poster TEXT, runtime TEXT, genre TEXT, director TEXT, writer TEXT, actors TEXT, plot TEXT, language TEXT, country TEXT, awards TEXT, rated TEXT, metascore TEXT, imdbRating TEXT, imdbVotes TEXT)");
             System.out.println("Table 'movies' has been created.");
         } catch (SQLException e) {
@@ -81,7 +77,7 @@ public class SQLite {
 
 
 
-    public Movie[] getMovie(String title, String year) throws SQLException {
+    public Movie[] getMovie(String title, String year)  {
         try {
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM movies WHERE title LIKE ? AND year = ?");
             preparedStatement.setString(1, "%" + title + "%");
@@ -103,7 +99,7 @@ public class SQLite {
 
     public Movie[] getMovie(String title, String year, String type) throws SQLException {
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM movies WHERE title = ? AND year = ? AND type = ?");
+            PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM movies WHERE title LIKE ? AND year LIKE ? AND type LIKE ?\n");
             preparedStatement.setString(1, title);
             preparedStatement.setString(2, year);
             preparedStatement.setString(3, type);
@@ -214,14 +210,15 @@ public class SQLite {
         return movie;
     }
 
-
-
-    public void close() throws SQLException {
-        if (connection != null) {
-            connection.close();
+    public void deleteMovie(Movie movie) {
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM movies WHERE imdbID = ?");
+            preparedStatement.setString(1, movie.getImdbID());
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
     }
-
 }
 
 
