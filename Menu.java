@@ -70,6 +70,10 @@ public class Menu {
 
     }
 
+    /**
+
+     * @throws SQLException
+     */
     public void showAllMovies() {
         try {
             // Retrieve all movies from the database
@@ -95,7 +99,18 @@ public class Menu {
         }
     }
 
+    /**
 
+     Prompts the user to enter a movie title and adds it to the local database if it is not already present.
+
+     If the movie is not found in the local database, the method makes an API request to search for the movie online.
+
+     If the movie is found online, the user is prompted to add the movie to the local database.
+
+     If the movie is already present in the local database, a message is displayed indicating that the movie is already in the database.
+
+     @throws SQLException if there is an error accessing the database
+     */
 
     private void addMovie() throws SQLException {
         System.out.println("\nEnter movie title:");
@@ -135,27 +150,39 @@ public class Menu {
         }
     }
 
-    private void deleteMovie() throws SQLException {
-        System.out.println("\nEnter movie title:");
-        String title = scanner.nextLine();
-        Movie[] movies = database.getMovie(title);
-        if (movies.length == 0) {
-            System.out.println("Movie not found in database.");
-        } else {
-            Movie movie = movies[0];
-            System.out.println(movie.toString());
-            System.out.println("Do you want to delete this movie from the database? (y/n)");
-            String answer = scanner.nextLine();
-            if (answer.equals("y")) {
-                database.deleteMovie(movie);
-                System.out.println("Movie deleted from database");
+    /**
+     * Deletes a movie from the database based on the user input of the movie title.
+     * If the movie is found in the database, it prompts the user for confirmation before deleting.
+     */
+    private void deleteMovie() {
+        try {
+            System.out.println("\nEnter movie title:");
+            String title = scanner.nextLine();
+            Movie[] movies = database.getMovie(title);
+            if (movies.length == 0) {
+                System.out.println("Movie not found in database.");
             } else {
-                System.out.println("Movie not deleted");
+                Movie movie = movies[0];
+                System.out.println(movie.toString());
+                System.out.println("Do you want to delete this movie from the database? (y/n)");
+                String answer = scanner.nextLine();
+                if (answer.equals("y")) {
+                    database.deleteMovie(movie);
+                    System.out.println("Movie deleted from database");
+                } else {
+                    System.out.println("Movie not deleted");
+                }
             }
+        } catch (SQLException e) {
+            System.out.println("Error deleting movie: " + e.getMessage());
         }
     }
 
 
+    /**
+     * Searches for movies in the database based on the user input of the movie title.
+     * If the movie is found in the database, it displays the movie information.
+     */
 
     private void search() throws SQLException {
         System.out.println("\nWhat do you want to search for?");
@@ -192,28 +219,35 @@ public class Menu {
         }
 
     }
-
-    public void searchMovies() throws SQLException {
+/**   * Searches for movies in the database based on the user input of the movie title.
+     * If the movie is not found in the database, it makes an API request to search for the movie online.
+     * If the movie is found online, it prompts the user for confirmation before adding the movie to the database.
+     */
+    public void searchMovies() {
         System.out.println("\nEnter movie title:");
         String title = scanner.nextLine();
         Movie[] movies = Movie.getMovie(title);
         if (movies.length == 0) {
-            // Movie not found in local database, make API request
-            OMDBApi omdbApi = new OMDBApi(keyReader.getApiKey());
-            Movie[] apiMovies = omdbApi.getMovie(title, keyReader.getApiKey());
+            try {
+                // Movie not found in local database, make API request
+                OMDBApi omdbApi = new OMDBApi(keyReader.getApiKey());
+                Movie[] apiMovies = omdbApi.getMovie(title, keyReader.getApiKey());
 
-            if (apiMovies.length == 0) {
-                System.out.println("No movies found");
-            } else {
-                System.out.println("Results from OMDB API:");
-                displayResult(apiMovies);
-                for (Movie movie : apiMovies) {
-                    System.out.println("Do you want to add this movie to the database? (Y/N)");
-                    String answer = scanner.nextLine();
-                    if (answer.equalsIgnoreCase("Y")) {
-                        database.addMovie(movie); // add movie to database
+                if (apiMovies.length == 0) {
+                    System.out.println("No movies found");
+                } else {
+                    System.out.println("Results from OMDB API:");
+                    displayResult(apiMovies);
+                    for (Movie movie : apiMovies) {
+                        System.out.println("Do you want to add this movie to the database? (Y/N)");
+                        String answer = scanner.nextLine();
+                        if (answer.equalsIgnoreCase("Y")) {
+                            database.addMovie(movie); // add movie to database
+                        }
                     }
                 }
+            } catch (Exception e) {
+                System.out.println("Error while searching for movie: " + e.getMessage());
             }
         } else {
             // Movie found in local database, display results
@@ -222,6 +256,9 @@ public class Menu {
         }
     }
 
+/**   * Displays the results of a movie search.
+     * @param movies the movies to display
+     */
 
     private void displayResult(Movie[] movies) {
         System.out.println("Results:\n");
@@ -234,10 +271,16 @@ public class Menu {
             typeOut(movie.getYear());
             System.out.print("Genre: ");
             typeOut(movie.getGenre());
+            System.out.print("Type: ");
+            typeOut(movie.getType());
+            System.out.print("Plot: ");
+            typeOut(movie.getPlot());
 
         }
     }
-
+/**   * Types out the given text to the console.
+     * @param text the text to type out slowly
+     */
     private void typeOut(String text) {
         for (int i = 0; i < text.length(); i++) {
             System.out.print(text.charAt(i));
@@ -254,10 +297,12 @@ public class Menu {
 
 
 
+    /**
+     * Searches for actors in the database based on the user input of the actors name.
+     */
 
 
-
-    private void searchActors() throws SQLException{
+    private void searchActors(){
         Scanner scanner = new Scanner(System.in);
 
         System.out.print("Enter actor name: ");
@@ -281,7 +326,9 @@ public class Menu {
         }
 
     }
-
+    /**
+     * Searches for directors in the database based on the user input of the directors name.
+     */
     private void searchDirectors(){
         Scanner scanner = new Scanner(System.in);
 
@@ -308,7 +355,9 @@ public class Menu {
 
 
     }
-
+    /**
+     * Searches for genres in the database based on the user input of the genre.
+     */
     private void searchGenres(){
         Scanner scanner = new Scanner(System.in);
 
@@ -334,7 +383,9 @@ public class Menu {
 
 
     }
-
+    /**
+     * Searches for years in the database based on the user input of the year.
+     */
     private void searchYears(){
         Scanner scanner = new Scanner(System.in);
 

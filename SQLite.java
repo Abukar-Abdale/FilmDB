@@ -1,8 +1,7 @@
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
 
 public class SQLite {
 
@@ -14,13 +13,35 @@ public class SQLite {
     }
 
     public void createMoviesTable() throws SQLException {
-        try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate("CREATE TABLE IF NOT EXISTS movies ( id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, released TEXT, year TEXT, imdbID TEXT, type TEXT, poster TEXT, runtime TEXT, genre TEXT, director TEXT, writer TEXT, actors TEXT, plot TEXT, language TEXT, country TEXT, awards TEXT, rated TEXT, metascore TEXT, imdbRating TEXT, imdbVotes TEXT)");
+        String query = "CREATE TABLE IF NOT EXISTS movies ( " +
+                "title TEXT, " +
+                "released TEXT, " +
+                "year TEXT, " +
+                "imdbID TEXT, " +
+                "type TEXT, " +
+                "poster TEXT, " +
+                "runtime TEXT, " +
+                "genre TEXT, " +
+                "director TEXT, " +
+                "writer TEXT, " +
+                "actors TEXT, " +
+                "plot TEXT, " +
+                "language TEXT, " +
+                "country TEXT, " +
+                "awards TEXT, " +
+                "rated TEXT, " +
+                "metascore TEXT, " +
+                "imdbRating TEXT, " +
+                "imdbVotes TEXT" +
+                ")";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.executeUpdate();
             System.out.println("Table 'movies' has been created.");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
+
 
     public void addMovie(Movie movie) throws SQLException {
         try {
